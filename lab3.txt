@@ -1,0 +1,348 @@
+1.	Write a PL/SQL block to read a number and check whether it is a palindrome or not.
+
+Solution:
+declare
+n number := &n;
+rem number;
+s number := 0;
+temp number;
+begin
+temp := n;
+while (n > 0) loop
+rem := mod(n,10);
+s:= s*10+a;
+n:= trunc(n/10);
+end loop;
+if temp = s then
+dbms_output.put_line(temp||' is a palindrome');
+else
+dbms_output.put_line(temp||' is not a palindrome');
+end if;
+end;
+SQL>  @p312;
+ 19  /
+Enter value for n: 1234
+old   2: n number := &n;
+new   2: n number := 1234;
+1234 is not a palindrome
+
+PL/SQL procedure successfully completed.
+
+SQL> @p312;
+ 19  /
+Enter value for n: 9119
+old   2: n number := &n;
+new   2: n number := 9119;
+9119 is a palindrome
+
+PL/SQL procedure successfully completed.
+
+
+
+2.	Write a PL/SQL Program to print the first n fibonacci numbers.
+Solution:
+declare
+a number;
+b number;
+c number;
+n number;
+i number;
+begin
+n:=&n;
+a:=0;
+b:=1;
+dbms_output.put_line(a);
+dbms_output.put_line(b);
+for i in 1..n-2
+loop
+c:=a+b;
+dbms_output.put_line(c);
+a:=b;
+b:=c;
+end loop;
+end;
+
+OUTPUT:
+SQL> @ FIBONACCI.sql
+Enter value for n: 3
+old   8: n:=&n;
+new   8: n:=3;
+0
+1
+1
+PL/SQL procedure successfully completed.
+
+
+3.	Write a PL/SQL block which will accept two numbers and find out their LCM and HCF. The output should be stored in a table called DEMO_TAB.
+DEMO_TAB
+Number1	Number2	LCM	HCF
+
+       Solution:
+ declare
+a number := &a;
+b number := &b;
+g number;
+l number;
+a1 number;
+b1 number;
+begin
+a1:=a;
+b1:=b;
+while (a <> b) loop
+       if  (a < b) then   
+          b := b - a;
+        else             
+          a := a - b;
+	end if;
+end loop;
+g := a;  
+l:= (a1*b1)/g;
+insert into demo_tab values(a1,b1,l,g); 
+end;
+
+
+SQL>);create table demo_tab(n1 number,n2 number,lcmnumber,hcf number
+
+Table created.
+
+SQL> @p32;
+ 22  /
+Enter value for a: 4
+old   2: a number := &a;
+new   2: a number := 4;
+Enter value for b: 8
+old   3: b number := &b;
+new   3: b number := 8;
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from demo_tab;
+
+        N1         N2        LCM        HCF
+---------- ---------- ---------- ----------
+         4          8          8          4
+
+
+
+4.	Consider the following relation schemas
+
+Inventory
+Product_ID	Product_name	Quantity
+
+Purchase_Record
+Product_ID	Status	Date
+
+Write a PL/SQL block to read the quantity of a product from inventory and if it is > 0 reduce the quantity by 1 and record the status of purchase of that product as ‘PURCHASED’. Otherwise record the status of purchase of that product as ‘OUT OF STOCK’. While recording the status of a purchase, record the date of transaction.
+
+
+Solution:
+declare
+id inven.pid%type := &id;
+q inven.qty%type;
+begin
+select qty into q from inven where pid = id;
+if q > 0 then 
+update inven set qty = qty - 1 where pid = id;
+insert into pur_rec values(id,'PURCHASED',sysdate);
+else
+insert into pur_rec values(id,'OUTOFSTOCK',sysdate);
+end if;
+end;
+
+SQL> select * from inven;
+       PID PNAME             QTY
+---------- ---------- ----------
+         1 sorter              10
+         2 screw               0
+         3 bolt              -10
+
+SQL>  select * from pur_rec;
+no rows selected.
+
+SQL> @p33;
+ 13  /
+Enter value for id: 1
+old   2: id inven.pid%type := &id;
+new   2: id inven.pid%type := 1;
+
+
+
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from inven;
+
+       PID PNAME             QTY
+---------- ---------- ----------
+         1 sorter              9
+         2 screw               0
+         3 bolt              -10
+
+SQL>  select * from pur_rec;
+
+       PID STATUS     PDATE
+---------- ---------- ---------
+         1 PURCHASED  19-SEP-07
+SQL>  @p33;
+ 13  /
+Enter value for id: 2
+old   2: id inven.pid%type := &id;
+new   2: id inven.pid%type := 2;
+
+PL/SQL procedure successfully completed.
+
+SQL>  select * from inven;
+
+       PID PNAME             QTY
+---------- ---------- ----------
+         1 sorter              9
+         2 screw               0
+         3 bolt              -10
+
+SQL>  select * from pur_rec;
+
+       PID STATUS     PDATE
+---------- ---------- ---------
+         1 PURCHASED  19-SEP-07
+         2 OUTOFSTOCK 19-SEP-07
+
+
+
+
+5.	Create a table employee with eno, ename, and basic_pay attributes, insert 3 to 4 records and write a PL/SQL block to calculate the Gross salary & Net salary for an employee for the following conditions:
+	HRA is 15% of basic.
+	DA is 62% of basic.
+	PF is 780/- if gross salary exceeds 8000, otherwise 600/-.
+	Professional tax is 2% of basic.
+and then print the employee no, name, hra, da, pf, ptax, gross salary & net salary for that employee.
+
+
+
+
+6.	Consider the following relation schemas
+Emp
+empid	name	salary	dno
+Del_History
+dno	Rows_deleted	date
+Write a PL/SQL block to delete records of all employees who belong to a particular department and then record the dno, no of rows deleted and date on which deletion occurred in the Del_History table using implicit cursors. 
+
+
+ Solution:
+ declare
+dn emp1.dno%type := &dn;
+c number;
+begin
+delete from emp1 where dno = dn;
+if sql%found then
+c := sql%rowcount;
+insert into del_history values(dn,c,sysdate);
+end if;
+end;
+
+SQL> create table  emp1 (empidnumber,name varchar2(12),salary number,dno number);
+
+Table created.
+SQL> select * from emp1;
+
+     EMPID NAME             SALARY        DNO
+---------- ------------ ---------- ----------
+         1 aaaa               1111         10
+         2 bbbb               2222         10
+         3 cccc               2222         20
+         4 rrrr               3333         30
+
+SQL> create table del_history(dno number, rows_deleted number, del_date date);
+
+Table created.
+SQL> @p36;
+ 11  /
+Enter value for dn: 10
+old   2: dn emp1.dno%type := &dn;
+new   2: dn emp1.dno%type := 10;
+
+PL/SQL procedure successfully completed.
+
+
+7.	Given the table EMPLOYEE (EmpNo, Name, Salary, Designation, DeptID) write a cursor to select the five highest and lowest paid employees from the table.
+
+8.	Write a PL/SQL block to handle the following built-in exceptions
+no_data_found
+too_many_rows
+zero_divide
+
+Solution:
+declare
+s employee.ssn%type ;
+n number := 10;
+m number;
+begin
+select ssn into s from employee;
+m := n/0;
+select ssn into s from employee where dno = 100;
+exception
+when too_many_rows then
+dbms_output.put_line('too many rows returned where only 1 is expected');
+when zero_divide  then
+dbms_output.put_line('attempting to divide by zero'); 
+when no_data_found then
+dbms_output.put_line('no such department exists');
+end;
+SQL> @p34;
+ 14  /
+too many rows returned where only 1 is expected
+
+PL/SQL procedure successfully completed.
+
+SQL> @p34;
+ 14  /
+attempting to divide by zero
+
+PL/SQL procedure successfully completed.
+SQL>  @p34;
+ 18  /
+no such department exists
+
+PL/SQL procedure successfully completed.
+
+
+9.	Write a PL/SQL block to check whether the quantity of any product in Inventory table is < 0. If so, using an exception display relevant message and update quantity to 0.
+
+Inventory
+Product_ID	Product_name	Quantity
+
+      Solution:
+
+ declare
+id inven.pid%type ;
+invalid_qty exception;
+begin
+select pid into id from inven where qty< 0;
+if sql%found then raise invalid_qty;
+end if;
+exception
+when too_many_rows then 
+dbms_output.put_line('more than one row selected where only 1 is expected');
+when invalid_qty then 
+dbms_output.put_line('INVALID QUANTITY');
+update inven set qty = 0 where pid = id;
+end;
+SQL> select * from inven;
+
+       PID PNAME             QTY
+---------- ---------- ----------
+         1 sorter             10
+         2 screw              -5
+SQL> @p33;
+ 15  /
+INVALID QUANTITY
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from inven;
+
+       PID PNAME             QTY
+---------- ---------- ----------
+         1 sorter             10
+         2 screw               0
+
+

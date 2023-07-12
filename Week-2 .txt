@@ -1,0 +1,157 @@
+Q.NO-1.A:
+
+Primary keys on course_id and student_id attributes.
+
+SQL>  alter table newcourse
+  2   add constraint course_pk primary key (course_id);
+
+Table altered.
+
+SQL> alter table newstudent
+  2  add constraint student_pk primary key (id);
+
+Table altered.
+
+Q.NO-1.B:
+
+Foreign key constraint on course_id attribute of student table.
+
+SQL>  alter table newstudent
+  2   add constraint newst_fk foreign key (course) references newcourse(course_id);
+
+Table altered.
+
+Q.NO-1.C:
+
+Unique on course name
+
+SQL> alter table newcourse
+  2  add constraint newcs_un unique (course_name);
+
+Table altered.
+
+Q.NO-1.D:
+
+Not null on student_name
+
+SQL> alter table newstudent
+  2  modify name not null;
+
+Table altered.
+
+Q.NO-1.E:
+
+Check constraint on grade attribute of grade table. Grade should be between 5 to 10.
+
+SQL> alter table grade
+  2  add constraint grade_ck
+  3  check (grade between 5 and 10);
+
+Table altered.
+
+Q.NO-1.F:
+
+Set default value for department attribute of course table.
+
+SQL> alter table newcourse
+  2  modify dept default 'EEE';
+
+Table altered.
+
+Q.NO-2:
+
+Write insert statements that violate the constraints specified in problem 1.
+
+SQL> INSERT INTO NEWCOURSE VALUES('Java',211,'CSE');
+INSERT INTO NEWCOURSE VALUES('Java',211,'CSE')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (SCOTT.COURSE_PK) violated
+
+SQL> insert into newcourse values('Java',null,'CSE');
+insert into newcourse values('Java',null,'CSE')
+                                    *
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("SCOTT"."NEWCOURSE"."COURSE_ID")
+
+SQL> insert into newstudent values('Jaswanth','4',121,'4');
+insert into newstudent values('Jaswanth','4',121,'4')
+*
+ERROR at line 1:
+ORA-02291: integrity constraint (SCOTT.NEWST_FK) violated - parent key not
+found
+
+Q.NO-3:
+
+Write update statements that violate the constraints specified in problem 1
+
+SQL> update newstudent
+  2  set course=121
+  3  where course=211;
+update newstudent
+*
+ERROR at line 1:
+ORA-02291: integrity constraint (SCOTT.NEWST_FK) violated - parent key not
+found
+
+Q.NO-4:
+
+Write delete statements that violate the constraints specified in problem 1.
+
+SQL> delete from newcourse
+  2  where course_id=211;
+delete from newcourse
+*
+ERROR at line 1:
+ORA-02292: integrity constraint (SCOTT.NEWST_FK) violated - child record found
+
+Q.NO-5:
+
+Drop the constraints specified in problem 1 using alter table statements.
+
+Dropping default constraint.
+
+SQL> alter table newcourse
+  2  modify dept default null;
+
+Table altered.
+
+Dropping not null keyword.
+
+SQL> alter table newstudent
+  2  modify name null;
+
+Table altered.
+
+Dropping check constraint.
+
+SQL> alter table grade
+  2  drop constraint grade_ck;
+
+Table altered.
+
+Dropping unique constraint.
+
+SQL> alter table newcourse
+  2  drop constraint newcs_un;
+
+Table altered.
+
+Dropping foreign key.
+
+SQL> alter table newcourse
+  2  drop constraint newcs_un;
+
+Table altered.
+
+Dropping primary key.
+
+SQL> alter table newstudent
+  2  drop constraint student_pk;
+
+Table altered.
+
+SQL> alter table newcourse
+  2  drop constraint course_pk;
+
+Table altered.

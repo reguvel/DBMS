@@ -1,0 +1,408 @@
+1.	Write a stored procedure, raise_salary which accepts an employee number,
+ increment and modifies salary of that employee in employee table. 
+Modified salary = salary increase amount+ current salary. If employee number is
+ not found or if the current salary is null, it should raise an exception. Otherwise, updates the salary.
+
+
+SQL> CREATE TABLE Employee(Empno int, Salary float);
+
+Table created.
+
+SQL> INSERT INTO Employee VALUES(1,93600.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,83600.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(3,73600.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(4,63600.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(5,53600.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(6,43600.77);
+
+1 row created.
+
+SQL> CREATE OR REPLACE PROCEDURE raise_salary(emp_no IN NUMBER,Inc_salary IN FLOAT) AS
+  2  sal FLOAT;
+  3  Inc_sal FLOAT;
+  4  BEGIN
+  5  SELECT Salary INTO sal FROM Employee WHERE Empno=emp_no;
+  6  Inc_sal:=sal+Inc_salary;
+  7  UPDATE Employee SET Salary=Inc_sal WHERE Empno=emp_no;
+  8  EXCEPTION
+  9  WHEN NO_DATA_FOUND THEN
+ 10  DBMS_OUTPUT.PUT_LINE ('No Data Found with emp_no '||emp_no);
+ 11  WHEN OTHERS THEN
+ 12  DBMS_OUTPUT.PUT_LINE ('Error!');
+ 13  END;
+ 14  /
+
+Procedure created.
+
+SQL> DECLARE
+  2  Emp_no NUMBER;
+  3  Inc_sal FLOAT;
+  4  BEGIN
+  5  Emp_no:=&Emp_no;
+  6  Inc_sal:=&Inc_sal;
+  7  raise_salary(Emp_no,Inc_sal);
+  8  END;
+  9  /
+Enter value for emp_no: 1
+old   5: Emp_no:=&Emp_no;
+new   5: Emp_no:=1;
+Enter value for inc_sal: 100.0
+old   6: Inc_sal:=&Inc_sal;
+new   6: Inc_sal:=100.0;
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from Employee;
+
+     EMPNO     SALARY
+---------- ----------
+         1   93700.77
+         2   83600.77
+         3   73600.77
+         4   63600.77
+         5   53600.77
+         6   43600.77
+
+6 rows selected.
+2.	Write a PL/SQL function that accepts department number and returns the total salary of the department.
+	
+
+SQL> CREATE TABLE Employee(Dno int,Name varchar(50),Salary float);
+
+Table created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-I',93700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-II',83700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-III',73700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-IV',63700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-V',53700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,'Person-I',93700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,'Person-II',83700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,'Person-III',73700.77);
+
+1 row created.
+
+SQL> CREATE OR REPLACE FUNCTION Tot_Sal(Dept_NO NUMBER)RETURN FLOAT AS
+  2  Total_Salary FLOAT;
+  3  BEGIN
+  4  SELECT Sum(Salary) INTO Total_Salary FROM EMPLOYEE GROUP BY Dno HAVING Dno=Dept_NO;
+  5  RETURN Total_Salary;
+  6  END;
+  7  /
+
+Function created.
+
+SQL> DECLARE
+  2  Dept_NO NUMBER;
+  3  Total FLOAT;
+  4  BEGIN
+  5  Dept_NO:=&Dept_No;
+  6  Total:=Tot_Sal(Dept_NO);
+  7  DBMS_OUTPUT.PUT_LINE('The Total Salary of Department with Dept. No. '||Dept_NO||' is '||Total);
+  8  END;
+  9  /
+Enter value for dept_no: 2
+old   5: Dept_NO:=&Dept_No;
+new   5: Dept_NO:=2;
+The Total Salary of Department with Dept. No. 2 is 251102.31
+
+PL/SQL procedure successfully completed.
+	
+3.	Write a PL/SQL block that computes increment of an employee in employee table by using incr function which takes employee number as argument, calculates increment and returns the same based on the following criteria:
+	If salary <= 3000 – increment = 30% of salary
+	If salary > 3000 and <= 6000– increment = 20% of salary
+	Else increment = 10% of salary. 
+
+
+SQL> CREATE TABLE Employee(Empno int,Salary float);
+
+Table created.
+
+SQL> INSERT INTO Employee VALUES(1,93777.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,83777.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(3,73777.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(4,63777.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(5,53777.77);
+
+1 row created.
+
+SQL> CREATE OR REPLACE FUNCTION Incr(Emp_no NUMBER)RETURN FLOAT AS
+  2  Inc_Sal FLOAT;
+  3  Sal FLOAT;
+  4  BEGIN
+  5  SELECT Salary INTO Sal FROM Employee WHERE Empno=Emp_no;
+  6  IF Sal<=3000 THEN
+  7  Inc_Sal:=0.3*Sal+Sal;
+  8  ElSIF Sal>3000 and Sal<=6000 THEN
+  9  Inc_Sal:=0.2*Sal+Sal;
+ 10  ELSE
+ 11  Inc_Sal:=0.1*Sal+Sal;
+ 12  END IF;
+ 13  RETURN Inc_Sal;
+ 14  END;
+ 15  /
+
+Function created.
+
+SQL> DECLARE
+  2  Inc_sal FLOAT;
+  3  Emp_no NUMBER;
+  4  BEGIN
+  5  Emp_no:=&Emp_no;
+  6  Inc_sal:=Incr(Emp_no);
+  7  UPDATE Employee SET Salary=Inc_sal WHERE Empno=Emp_no;
+  8  END;
+  9  /
+Enter value for emp_no: 1
+old   5: Emp_no:=&Emp_no;
+new   5: Emp_no:=1;
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from employee;
+
+     EMPNO     SALARY
+---------- ----------
+         1 103155.547
+         2   83777.77
+         3   73777.77
+         4   63777.77
+         5   53777.77
+4.	Write a stored procedure that displays the employee names and their total earnings from the Emp Table.
+Hint: Total earning of an employee = 12*(gross_salary+commission)
+
+SQL> CREATE OR REPLACE PROCEDURE DISPLAY IS
+  2  Emp_name VARCHAR(10);
+  3  Salary NUMBER;
+  4  Commision NUMBER;
+  5  CURSOR c1 is
+  6  SELECT ENAME,SAL,COMM FROM EMP;
+  7  BEGIN
+  8  DBMS_OUTPUT.PUT_LINE('EMP_NAME'||' '||'TOTAL_EARNINGS');
+  9  OPEN c1;
+ 10  LOOP
+ 11  FETCH c1 INTO Emp_name,Salary,Commision;
+ 12  EXIT WHEN c1%NOTFOUND;
+ 13  IF Commision IS NULL THEN
+ 14  DBMS_OUTPUT.PUT_LINE(Emp_name||' '||12*Salary);
+ 15  ELSE
+ 16  DBMS_OUTPUT.PUT_LINE(Emp_name||' '||12*(Salary+Commision));
+ 17  END IF;
+ 18  END LOOP;
+ 19  END;
+ 20  /
+
+Procedure created.
+
+SQL> BEGIN
+  2  DISPLAY;
+  3  END;
+  4  /
+EMP_NAME TOTAL_EARNINGS
+SMITH 9600
+ALLEN 22800
+WARD 21000
+JONES 35700
+MARTIN 31800
+BLAKE 34200
+CLARK 29400
+SCOTT 36000
+KING 60000
+TURNER 18000
+ADAMS 13200
+JAMES 11400
+FORD 36000
+MILLER 15600
+
+PL/SQL procedure successfully completed.
+
+5.	Create a database trigger that checks whether the new salary of employee is less than existing salary.
+ If so, raise an appropriate exception and avoid that updation.
+
+SQL> CREATE TABLE Employee(Dno int,Name varchar(50),Salary float);
+
+Table created.
+
+SQL> INSERT INTO Employee VALUES(1,'Person-I',93700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(2,'Person-II',83700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(3,'Person-III',73700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(4,'Person-IV',63700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(5,'Person-V',53700.77);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO Employee VALUES(6,'Person-I',93700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(7,'Person-II',83700.77);
+
+1 row created.
+
+SQL> INSERT INTO Employee VALUES(8,'Person-III',73700.77);
+
+1 row created.
+
+SQL> CREATE OR REPLACE TRIGGER EmpSal
+  2  AFTER UPDATE ON Employee
+  3  FOR EACH ROW
+  4  BEGIN
+  5  IF((:NEW.salary) < (:OLD.salary*1.0)) THEN
+  6  RAISE_APPLICATION_ERROR(-20004, 'Raised Salary must be greater than original salary');
+  7  END IF;
+  8  END;
+  9  /
+
+Trigger created.
+
+
+SQL>  UPDATE Employee SET Salary=1000 WHERE Dno=1;
+ UPDATE Employee SET Salary=1000 WHERE Dno=1
+        *
+ERROR at line 1:
+ORA-20004: Raised Salary must be greater than original salary
+ORA-06512: at "Y21CS63.EMPSAL", line 3
+ORA-04088: error during execution of trigger 'Y21CS63.EMPSAL'
+
+
+6.	Consider the following tables
+PERSINFO
+EMPNO	NAME	AGE
+AUDITPERSINFO
+EMPNO	NAME	AGE	OPERATION	ODATE
+
+PERSINFO is the table for which the auditing must be performed and AUDITPERSINFO is the table 
+which keeps track of the records deleted or modified. Create a database trigger audit_trial. 
+This trigger is forced when an UPDATE or a DELETE is performed on the table PERSINFO. 
+It first checks for the operation being performed on the table. Then depending on the operation,
+ a variable (that corresponds to operation) is assigned the value ‘UPDATE’ or ‘DELETE’ and then
+ inserts the updated/deleted record into AUDITPERSINFO.
+
+SQL> CREATE TABLE PERSINFO (EMPNO INT,NAME VARCHAR(50),AGE INT);
+
+Table created.
+
+SQL> INSERT INTO PERSINFO VALUES (1001, 'Person-I', 35);
+
+1 row created.
+
+SQL> INSERT INTO PERSINFO VALUES (1002, 'Person-II', 32);
+
+1 row created.
+
+SQL> INSERT INTO PERSINFO VALUES (1003, 'Person-III', 40);
+
+1 row created.
+
+SQL> CREATE TABLE AUDITPERSINFO (EMPNO INT,NAME VARCHAR(50),AGE INT,OPERATION
+  2  VARCHAR(10),ODATE DATE);
+
+Table created.
+
+SQL> CREATE OR REPLACE TRIGGER audit_trial
+  2  AFTER UPDATE OR DELETE ON PERSINFO
+  3  FOR EACH ROW
+  4  DECLARE
+  5  
+  6  operation VARCHAR2(10);
+  7  BEGIN
+  8  IF DELETING THEN
+  9  operation := 'DELETE';
+ 10  INSERT INTO AUDITPERSINFO(EMPNO, NAME, AGE, OPERATION, ODATE)
+ 11  VALUES (:OLD.EMPNO, :OLD.NAME, :OLD.AGE, operation, SYSDATE);
+ 12  ELSIF UPDATING THEN
+ 13  operation := 'UPDATE';
+ 14  INSERT INTO AUDITPERSINFO (EMPNO, NAME, AGE, OPERATION, ODATE)
+ 15  VALUES (:NEW.EMPNO, :NEW.NAME, :NEW.AGE, operation, SYSDATE);
+ 16  END IF;
+ 17  END;
+ 18  /
+
+Trigger created.
+
+SQL> UPDATE PERSINFO SET AGE=45 WHERE EMPNO=1001;
+
+1 row updated.
+
+SQL> DELETE FROM PERSINFO WHERE AGE<35;
+
+1 row deleted.
+
+SQL> SELECT * FROM AUDITPERSINFO;
+
+     EMPNO NAME                                                      AGE
+---------- -------------------------------------------------- ----------
+OPERATION  ODATE
+---------- ---------
+      1001 Person-I                                                   45
+UPDATE     06-JUL-23
+
+      1002 Person-II                                                  32
+DELETE     06-JUL-23
+
+
+
+
+
+

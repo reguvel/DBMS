@@ -1,0 +1,296 @@
+Week-1:
+
+Q.NO-1:
+
+Create the tables in the database.
+
+
+SQL>  create table
+  2   newcourse(course_name varchar(20),course_id number,dept varchar(10));
+
+Table created.
+
+SQL> create table
+  2  newstudent
+  3  (name varchar(25),id number,course number,semester varchar(5));
+
+Table created.
+
+SQL> create table
+  2  grade
+  3  (id number,semester varchar(5),course number,grade number(4,2));
+
+Table created.
+
+Q.NO-2:
+
+Alter the course table by adding a new attribute instructor.
+
+SQL> alter table newcourse
+  2  add instructor varchar(25);
+
+Table altered.
+
+SQL> desc newcourse;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ COURSE_NAME                                        VARCHAR2(20)
+ COURSE_ID                                          NUMBER
+ DEPT                                               VARCHAR2(10)
+ INSTRUCTOR                                         VARCHAR2(25)
+
+Q.NO-3:
+
+Alter the student table by modifying the datatype of Student_ID
+
+SQL> alter table newstudent
+  2  modify id varchar(25);
+
+Table altered.
+
+Q.NO-4:
+
+Alter the course table by dropping instructor attribute.
+
+SQL> alter table newcourse
+  2  drop column instructor;
+
+Table altered.
+
+Q.NO-5:
+
+Show the structure of the grade table.
+
+SQL> desc grade;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                                 NUMBER
+ SEMESTER                                           VARCHAR2(5)
+ COURSE                                             NUMBER
+ GRADE                                              NUMBER(4,2)
+
+Q.NO-6:
+
+Load the database with data using insert statements.
+
+
+SQL> insert into newcourse values('C',111,'CSE');
+
+1 row created.
+
+SQL> insert into newcourse values('Python',211,'CSE');
+
+1 row created.
+
+SQL> insert into newcourse values('VLSI',311,'ECE');
+
+1 row created.
+
+SQL> select * from newcourse;
+
+COURSE_NAME           COURSE_ID DEPT
+-------------------- ---------- ----------
+C                           111 CSE
+Python                      211 CSE
+VLSI                        311 ECE
+
+
+SQL> insert into newstudent
+  2  values('&name','&id',&course,'&sem');
+Enter value for name: Arjun
+Enter value for id: 1
+Enter value for course: 111
+Enter value for sem: 1
+old   2: values('&name','&id',&course,'&sem')
+new   2: values('Arjun','1',111,'1')
+
+1 row created.
+
+SQL> /
+Enter value for name: Abhi
+Enter value for id: 2
+Enter value for course: 121
+Enter value for sem: 2
+old   2: values('&name','&id',&course,'&sem')
+new   2: values('Abhi','2',121,'2')
+
+1 row created.
+
+SQL> /
+Enter value for name: Balaji
+Enter value for id: 3
+Enter value for course: 211
+Enter value for sem: 3
+old   2: values('&name','&id',&course,'&sem')
+new   2: values('Balaji','3',211,'3')
+
+1 row created.
+
+SQL> select * from newstudent;
+
+NAME                      ID                            COURSE SEMES
+------------------------- ------------------------- ---------- -----
+Arjun                     1                                111 1
+Abhi                      2                                121 2
+Balaji                    3                                211 3
+
+
+SQL> insert into grade
+  2  values(&id,'&sem',&course,'&grade');
+Enter value for id: 1
+Enter value for sem: 1
+Enter value for course: 111
+Enter value for grade: 10
+old   2: values(&id,'&sem',&course,'&grade')
+new   2: values(1,'1',111,'10')
+
+1 row created.
+
+SQL> /
+Enter value for id: 2
+Enter value for sem: 2
+Enter value for course: 121
+Enter value for grade: 9.8
+old   2: values(&id,'&sem',&course,'&grade')
+new   2: values(2,'2',121,'9.8')
+
+1 row created.
+
+SQL> /
+Enter value for id: 3
+Enter value for sem: 3
+Enter value for course: 211
+Enter value for grade: 9.6
+old   2: values(&id,'&sem',&course,'&grade')
+new   2: values(3,'3',211,'9.6')
+
+1 row created.
+
+SQL> select * from grade;
+
+        ID SEMES     COURSE      GRADE
+---------- ----- ---------- ----------
+         1 1            111         10
+         2 2            121        9.8
+         3 3            211        9.6
+
+Q.NO-7:
+
+Retrieve the contents of a table using select statements.
+
+
+SQL> select * from newcourse;
+
+COURSE_NAME           COURSE_ID DEPT
+-------------------- ---------- ----------
+C                           111 CSE
+Python                      211 CSE
+VLSI                        311 ECE
+
+SQL> select * from newstudent;
+
+NAME                      ID                            COURSE SEMES
+------------------------- ------------------------- ---------- -----
+Arjun                     1                                111 1
+Abhi                      2                                121 2
+Balaji                    3                                211 3
+
+SQL> select * from grade;
+
+        ID SEMES     COURSE      GRADE
+---------- ----- ---------- ----------
+         1 1            111         10
+         2 2            121        9.8
+         3 3            211        9.6
+
+Q.NO-8:
+
+Modify the contents of tables using update statements
+
+SQL> update grade
+  2  set grade=10
+  3  where grade=9.8;
+
+1 row updated.
+
+SQL> select * from grade;
+
+        ID SEMES     COURSE      GRADE
+---------- ----- ---------- ----------
+         1 1            111         10
+         2 2            121         10
+         3 3            211        9.6
+
+Q.NO-9:
+
+Delete selected records from the tables.
+
+
+SQL> delete from grade
+  2  where course=211;
+
+1 row deleted.
+
+SQL> select * from grade;
+
+        ID SEMES     COURSE      GRADE
+---------- ----- ---------- ----------
+         1 1            111         10
+         2 2            121         10
+
+Q.NO-10:
+
+Drop a table.
+
+
+SQL> drop table emp;
+
+Table dropped.
+
+SQL> desc emp;
+ERROR:
+ORA-04043: object emp does not exist
+
+Q.NO-11:
+
+COMMIT.
+
+
+SQL> COMMIT;
+
+Commit complete.
+
+Q.NO-12:
+
+TRUNCATE.
+
+
+SQL> select * from demo;
+
+NAME                              ID
+------------------------- ----------
+REMARK                                             SURNAME
+-------------------------------------------------- ----------
+a                                  1
+nothing
+
+b                                  2
+bad
+
+
+SQL> truncate table demo;
+
+Table truncated.
+
+SQL> select * from demo;
+
+no rows selected
+
+SQL> desc demo;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ NAME                                               VARCHAR2(25)
+ ID                                        NOT NULL NUMBER
+ REMARK                                             VARCHAR2(50)
+ SURNAME                                            VARCHAR2(10)
+
