@@ -1,0 +1,133 @@
+
+Cycle 4:
+1.Write a stored procedure, raise_salary which accepts an employee number, increment and modifies salary of that employee in employee table. Modified salary = salary increase amount+ current salary. If employee number is not found or if the current salary is null, it should raise an exception. Otherwise, updates the salary.
+
+CREATE OR REPLACE PROCEDURE raise_salary(
+  emp_no IN NUMBER,
+  inc_salary IN NUMBER
+) AS
+  curr_salary NUMBER;
+BEGIN
+  -- Retrieve the current salary of the employee
+  SELECT salary INTO curr_salary FROM employee WHERE empno = emp_no;
+
+  -- Check if the current salary is null
+  IF curr_salary IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Current salary is null');
+  END IF;
+
+  -- Calculate the new salary
+  curr_salary := curr_salary + inc_salary;
+
+  -- Update the employee's salary with the new value
+  UPDATE employee SET salary = curr_salary WHERE empno = emp_no;
+
+  -- If no data is found for the given employee number, handle the exception
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      RAISE_APPLICATION_ERROR(-20002, 'Employee number not found');
+    WHEN OTHERS THEN
+      RAISE_APPLICATION_ERROR(-20003, 'Error updating salary');
+END;
+
+declare
+	n number:=&no;
+	r emp2%rowtype;
+begin
+	raisesal(n);
+	select * into r from emp2 where empno = n;
+	dbms_output.put_line(r.empno||’  ‘||r.sal);
+
+end;
+2.	Write a PL/SQL function that accepts department number and returns the total salary of the department.
+create or replace function dept_sal(dno number) return number as
+ts number;
+begin
+select sum(sal) into ts from emp where deptno=dno;
+return ts;
+end;
+3.	Write a PL/SQL block that computes increment of an employee in employee table by using incr function which takes employee number as argument, calculates increment and returns the same based on the following criteria:
+	If salary <= 3000 – increment = 30% of salary
+	If salary > 3000 and <= 6000– increment = 20% of salary
+	Else increment = 10% of salary. 
+               FUNCTION FOR CALCULATING INCREMENT 
+
+create or replace function incr(n number) return number as 
+	s number;
+begin
+		select sal into s from emp2 where empno=n;
+		if s <= 3000 then s:=0.3*s;
+		elsif s>3000 and s<=6000 then
+			s:=0.2*s;
+		else    s:=0.1*s;
+		end if;
+		return s;
+end;
+
+MAIN PROGRAM
+
+declare
+		n number:=&no;
+		s number;
+begin
+		s:=incr(n);
+		dbms_output.put_line('incr salary'||s);
+		update emp2 set sal=sal+s where empno=n;
+end;
+4.	Write a stored procedure that displays the employee names and their total earnings from the Emp Table.Hint: Total earning of an employee = 12*(gross_salary+commission)
+
+create or replace procedure annual_pay as
+ CURSOR ann_sal is
+ select ename,12*(sal+nvl(comm,0)) annual_sal from emp;
+  enam varchar2(20);
+  a_sal number;
+ begin
+open ann_sal;
+loop
+fetch ann_sal into enam,a_sal;
+dbms_output.put_line('Name: '||enam||'  Annual sal: '||a_sal);
+exit when ann_sal%notfound;
+end loop;
+close ann_sal;
+end;
+5.	Create a database trigger that checks whether the new salary of employee is less than existing salary. If so, raise an appropriate exception and avoid that updation.
+
+create or replace trigger sal_check
+before update on emp3 
+for each row 
+begin 
+if :new.sal< :old.sal then 
+raise_application_error(-20006,'You Cannot Decrease an emp''s Sal'); 
+end if; 
+end;
+
+6.	Consider the following tables
+PERSINFO
+EMPNO	NAME	AGE
+AUDITPERSINFO
+EMPNO	NAME	AGE	OPERATION	ODATE
+
+PERSINFO is the table for which the auditing must be performed and AUDITPERSINFO is the table which keeps track of the records deleted or modified. Create a database trigger audit_trial. This trigger is forced when an UPDATE or a DELETE is performed on the table PERSINFO. It first checks for the operation being performed on the table. Then depending on the operation, a variable (that corresponds to operation) is assigned the value ‘UPDATE’ or ‘DELETE’ and then inserts the updated/deleted record into AUDITPERSINFO.
+
+Program:
+ create or replace trigger audit_trial
+	after update or delete on persinfo for each row
+declare
+	eno    number;
+	ename  varchar2(12);
+	eage   number;
+	op     varchar2(12);
+begin
+	if updating then op:='update';
+	elsif deleting then op:='delete';
+	end if;
+	eno    :=  :old.empno;
+	ename  :=  :old.name;
+	eage   :=  :old.age;
+	insert into auditpersinfo
+	values(eno,ename,eage,op,sysdate);
+end;
+
+
+
+
