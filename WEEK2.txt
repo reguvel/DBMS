@@ -1,0 +1,95 @@
+1.
+SQL> create table course(
+  2  course_ varchar(10),
+  3  name varchar(20) unique,
+  4  course_id varchar(6) primary key, 
+  5  department varchar(4) default 'CSE');
+
+Table created.
+
+SQL> create table student(
+  2  name varchar(20) not null,
+  3  id varchar(20) primary key,
+  4  course_id varchar(6) references course(course_id),
+  5  semester int );
+
+Table created.
+
+SQL> create table grade(
+  2  id varchar(10) ,
+  3  semester int,
+  4  course varchar(6),
+  5  grade numeric(3,2));
+
+Table created.
+
+SQL> alter table grade add check(grade>=5 and grade<=10);
+
+Table altered.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+2.
+#check
+SQL> insert into grade values('L22CS199',3,'CS-222',4.5);
+insert into grade values('L22CS199',3,'CS-222',4.5)
+ERROR at line 1:
+ORA-02290: check constraint (L22CS199.SYS_C0019792) violated
+
+#foreign key
+SQL> drop table course;
+drop table course
+ERROR at line 1:
+ORA-02449: unique/primary keys in table referenced by foreign keys
+
+#foreign key
+SQL> insert into student values('Aditya','l22cs199','cse',3);
+insert into student values('Aditya','l22cs199','cse',3)
+ERROR at line 1:
+ORA-02291: integrity constraint (L22CS199.SYS_C0019737) violated - parent key
+not found
+
+$not null
+SQL> insert into student values(null,'l22cs200','CS-222',2);
+insert into student values(null,'l22cs200','CS-222',2)
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("L22CS199"."STUDENT"."NAME")
+
+---------------------------------------------------------------------------------------------------------------------------
+
+3.
+
+
+
+
+
+
+
+
+
+
+select course.department from course INNER JOIN student on course.course_id=student.course;
+
+select department from course inner join student on course.course_id=student.course;
+
+insert into student values('Aditya','l22cs199','CS-213',3);
+insert into student values('Aditya','l22cs199','CS-222',3);
+insert into course(course_,name,course_id) values('DBMS','DATABASE','CS-222');
+alter table student rename column course to course_id;
+create table course(
+course_ varchar(10),
+name varchar(20) unique,
+course_id varchar(10) primary key, 
+department varchar(10) default 'CSE');
+
+create table student(
+name varchar(20) not null,
+id varchar(20) primary key,
+course_id varchar(6) references course(course_id),
+semester int );
+
+create table grade(
+id varchar(10) ,
+semester int,
+course varchar(6),
+grade numeric(3,2));

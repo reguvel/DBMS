@@ -1,0 +1,619 @@
+--1. PALINDROME:
+
+set serveroutput on;
+declare
+	num number;
+	rev number:=0;
+	org number;
+begin
+	num:=&num;
+	org:=num;
+	while num>0 loop
+		rev:=(rev*10)+MOD(num,10);
+		num:=trunc(num/10);
+	end loop;
+	if org=rev then
+		dbms_output.put_line('Palindrome');
+	else
+		dbms_output.put_line('Not Palindrome');
+	end if;
+end;
+
+OUTPUT:
+SQL> @c:/plsql/plone.sql;
+Input truncated to 1 characters
+Enter value for num: 343
+old   6:        num:=&num;
+new   6:        num:=343;
+Palindrome
+PL/SQL procedure successfully completed.
+
+-----------------------------------------------------------------
+
+--2.FIBONACCI:
+
+set serveroutput on;
+declare
+    f0 number:=1;
+    f1 number:=1;
+    f2 number:=0;
+    num number;
+begin
+    num:=&num;
+    dbms_output.put_line('The fibonacci series is: ');
+    dbms_output.put_line(f1);
+    for i in 1..num-1 loop
+        f2:=f0+f1;
+        f0:=f1;
+        f1:=f2;
+        dbms_output.put_line(f0);
+    end loop;
+end;
+
+OUTPUT:
+SQL> @C:\plsql\pltwo.sql;
+Input truncated to 1 characters
+Enter value for num: 6
+old   8:     num:=&num;
+new   8:     num:=6;
+The fibonacci series is:
+1
+1
+2
+3
+5
+8
+PL/SQL procedure successfully completed.
+
+
+-----------------------------------------------------------------
+
+
+--3.LCM and HCF
+CREATE TABLE DEMO_TAB (
+  Number1 NUMBER,
+  Number2 NUMBER,
+  LCM NUMBER,
+  HCF NUMBER
+);
+
+DECLARE
+  num1 NUMBER;
+  num2 NUMBER;
+  lcm NUMBER;
+  hcf NUMBER;
+  temp NUMBER;
+  gcd NUMBER;
+BEGIN
+  -- Accept the numbers
+  num1 := 7;
+  num2 := 22;
+
+  -- Calculate LCM
+  lcm := (num1 * num2);
+
+  -- Calculate HCF using Euclidean algorithm
+  IF num2 > num1 THEN
+    temp := num1;
+    num1 := num2;
+    num2 := temp;
+  END IF;
+
+  WHILE num2 != 0 LOOP
+    temp := num2;
+    num2 := num1 MOD num2;
+    num1 := temp;
+  END LOOP;
+
+  gcd := num1;
+  lcm := lcm / gcd;
+
+  -- Insert the values into DEMO_TAB
+  INSERT INTO DEMO_TAB (Number1, Number2, LCM, HCF)
+  VALUES (num1, num2, lcm, gcd);
+
+  -- Output the result
+  DBMS_OUTPUT.PUT_LINE('LCM: ' || lcm);
+  DBMS_OUTPUT.PUT_LINE('HCF: ' || gcd);
+END;
+/
+
+OUTPUT:SQL> @C:\plsql\plfour.sql;
+
+LCM: 154
+HCF: 1
+PL/SQL procedure successfully completed.
+
+SQL> select * from demo_tab;
+
+   NUMBER1    NUMBER2        LCM        HCF
+---------- ---------- ---------- ----------
+         1          0        154          1
+
+
+-----------------------------------------------------------------
+
+--4. STORE RECORDS
+
+drop table purchase_record;
+drop table inventory;
+create table inventory(
+	product_id number primary key,
+	productname varchar(10),
+	quantity number
+);
+
+create table purchase_record(
+	product_id number references inventory(product_id),
+	status varchar(15) default 'IN STOCK',
+	Date1 date
+);
+
+insert into inventory values(1,'CONSOLE',0);
+insert into inventory values(2,'SCREEN',2);
+insert into purchase_record(product_id,Date1) values(1,cast('22-FEB-23' as date));
+insert into purchase_record(product_id,Date1) values(2,cast('21-FEB-22' as date));
+
+DECLARE
+	product number;
+	Quantity number;
+BEGIN
+	dbms_output.put_line('Enter product_id: ');
+	product:=&product;
+	select quantity into Quantity from inventory where product_id=product;
+	if Quantity > 0 THEN
+		update inventory set Quantity=Quantity-1 where product_id=product;
+		insert into purchase_record (product_id, status, Date1) values (product, 'PURCHASED', SYSDATE);
+	else
+		insert into purchase_record (product_id, status, Date1) values (product, 'OUT OF STOCK', SYSDATE);
+	end if;
+END;
+	
+/	
+
+OUTPUT: SQL> @c:/plsql/plfive.sql;
+
+Table dropped.
+
+
+Table dropped.
+
+
+Table created.
+
+
+Table created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+Input truncated to 2 characters
+Enter value for product: 2
+old   6:        product:=&product;
+new   6:        product:=2;
+Enter product_id:
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from purchase_record;
+
+PRODUCT_ID STATUS          DATE1
+---------- --------------- ---------
+         1 IN STOCK        22-FEB-23
+         2 IN STOCK        21-FEB-22
+         2 PURCHASED       30-JUN-23
+         
+
+-----------------------------------------------------------------
+
+--5. gross and net pay
+
+drop table employee;
+drop table final;
+create table employee(
+	eno number,
+	ename varchar(10),
+	basic_pay float
+);
+
+
+insert into employee values(1,'Aditya',10000);
+insert into employee values(2,'Satuluri',11000.34);
+insert into employee values(3,'Mohith',12000);
+insert into employee values(4,'Reguel',10000);
+
+DEClARE
+	enum number;
+	eename employee.ename%type;
+	base_pay float;
+	hra float;
+	da float;
+	pf float;
+	tax float;
+	gross_salary float;
+	net_salary float;
+BEGIN
+	enum:=&employee_number;
+	select basic_pay,ename into base_pay,eename from employee  where eno=enum;
+	hra:=0.15*base_pay;
+	da:=0.62*base_pay;
+	gross_salary:=base_pay+hra+da;
+	
+	if gross_salary > 8000 THEN
+		pf:=780;
+	else
+		pf:=600;
+	end if;
+	tax:=0.02*base_pay;
+	net_salary:=gross_salary-pf-tax;
+	
+	DBMS_OUTPUT.PUT_LINE('Employee Number: ' || enum);
+  	DBMS_OUTPUT.PUT_LINE('Employee Name: ' || eename);
+  	DBMS_OUTPUT.PUT_LINE('Basic Pay: ' || base_pay);
+  	DBMS_OUTPUT.PUT_LINE('HRA: ' || hra);
+  	DBMS_OUTPUT.PUT_LINE('DA: ' || da);
+  	DBMS_OUTPUT.PUT_LINE('PF: ' || pf);
+  	DBMS_OUTPUT.PUT_LINE('Tax: ' || tax);
+  	DBMS_OUTPUT.PUT_LINE('Gross Salary: ' || gross_salary);
+  	DBMS_OUTPUT.PUT_LINE('Net Salary: ' || net_salary);
+END;
+/
+
+OUTPUT:  @c:/plsql/plfive.sql
+
+Table dropped.
+Table dropped.
+Table created.
+1 row created.
+1 row created.
+1 row created.
+1 row created.
+
+Enter value for employee_number: 1
+old  13:        enum:=&enum;
+new  13:        enum:=1;
+Employee Number: 1
+Employee Name: Aditya
+Basic Pay: 10000
+HRA: 1500
+DA: 6200
+PF: 780
+Tax: 200
+Gross Salary: 17700
+Net Salary: 16720
+
+PL/SQL procedure successfully completed.
+
+
+
+---------------------------------------------------------------------------------------
+
+--6. Implicit cursors emp deletion
+
+set serveroutput on;
+drop table del_history;
+drop table emp;
+create table emp(
+	empid number,
+	name varchar(10),
+	salary float,
+	dno number
+);
+create table del_history(
+	dno number,
+	rows_deleted number,
+	Date1 date
+);
+
+insert into emp values(1,'Aditya',34000,123);
+insert into emp values(2,'Kailash',32000,456);
+insert into emp values(3,'Reguvel',36000,234);
+insert into emp values(4,'Krishna',67000,123);
+
+declare
+	dnum number;
+	delrow number;
+begin
+	dnum:=&Department_Number;
+	delete from emp where dno=dnum;
+	delrow:=sql%rowcount;
+	if delrow>0 then
+		insert into del_history values(dnum,delrow,sysdate);
+		dbms_output.put_line('Records deleted and logged in del_history');
+	else
+		dbms_output.put_line('No records deleted');
+	end if;
+end;
+/
+
+OUTPUT:
+
+SQL> @c:/plsql/plsix.sql;
+
+Table dropped.
+
+
+Table dropped.
+
+
+Table created.
+
+
+Table created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+Input truncated to 1 characters
+Enter value for department_number: 123
+old   5:        dnum:=&Department_Number;
+new   5:        dnum:=123;
+
+Records deleted and logged in del_history
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from del_history;
+
+       DNO ROWS_DELETED DATE1
+---------- ------------ ---------
+       123            2 01-JUL-23
+ 
+---------------------------------------------------------------------------------------       
+--7.
+
+set serveroutput on;
+drop table employee;
+create table employee(
+	empno number,
+	name varchar(10),
+	salary float,
+	designation varchar(20),
+	deptid number
+);
+INSERT INTO employee VALUES (1, 'Aditya', 23000, 'Manager', 123);
+INSERT INTO employee VALUES (2, 'Reguvel', 18000, 'Project leader', 123);
+INSERT INTO employee VALUES (3, 'Kailash', 13000, 'engineer', 123);
+INSERT INTO employee VALUES (4, 'John', 25000, 'Manager', 123);
+INSERT INTO employee VALUES (5, 'Sarah', 20000, 'Project Leader', 123);
+INSERT INTO employee VALUES (6, 'Mike', 15000, 'Engineer', 123);
+INSERT INTO employee VALUES (7, 'Emily', 18000, 'Project Manager', 123);
+INSERT INTO employee VALUES (8, 'David', 22000, 'Software Developer', 123);
+INSERT INTO employee VALUES (9, 'Karen', 17000, 'QA Analyst', 123);
+INSERT INTO employee VALUES (10, 'Tom', 19000, 'Technical Writer', 123);
+INSERT INTO employee VALUES (11, 'Lisa', 16000, 'Business Analyst', 123);
+INSERT INTO employee VALUES (12, 'Alex', 21000, 'Database Administrator', 123);
+
+declare
+	cursor csr1 is
+		select * from employee order by salary desc;
+    cursor csr3 is
+		select * from employee order by salary asc;
+	csr2 csr1%rowtype;
+	csr4 csr3%rowtype;
+	i number:=0;
+	j number:=0;
+begin
+	dbms_output.put_line('Top 5 highest paid employees: ');
+	dbms_output.put_line('EMPNO'||CHR(9)||'NAME'||chr(9)||'SALARY');
+	dbms_output.put_line('---------------------------------------');
+	for csr2 in csr1 loop
+		i:=i+1;
+		if i<=5 then
+			dbms_output.put_line(csr2.empno||CHR(9)||csr2.name||chr(9)||csr2.salary);
+		end if;
+	end loop;
+	
+	dbms_output.put_line(chr(10)||'Top 5 Lowest paid employees: ');
+	dbms_output.put_line('EMPNO'||CHR(9)||'NAME'||chr(9)||'SALARY');
+	dbms_output.put_line('---------------------------------------');
+	
+	for csr4 in csr3 loop
+		j:=j+1;
+		if j<=5 then
+			dbms_output.put_line(csr4.empno||CHR(9)||csr4.name||chr(9)||csr4.salary);
+		end if;
+	end loop;
+end;
+/
+
+OUTPUT:
+
+SQL> @c:/plsql/plseven.sql;
+
+Table dropped.
+
+
+Table created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+Top 5 highest paid employees:
+EMPNO   NAME    SALARY
+---------------------------------------
+4       John    25000
+1       Aditya  23000
+8       David   22000
+5       Sarah   20000
+10      Tom     19000
+
+
+Top 5 Lowest paid employees:
+EMPNO   NAME    SALARY
+---------------------------------------
+3       Kailash 13000
+6       Mike    15000
+11      Lisa    16000
+9       Karen   17000
+2       Reguvel 18000
+
+PL/SQL procedure successfully completed.
+
+
+--------------------------------------------------------------------------------
+--8. EXCEPTIONS
+
+DECLARE
+  a NUMBER;
+  b NUMBER;
+  result NUMBER;
+BEGIN
+  -- Perform some operation that may raise an exception
+  a:=10;
+  b:=0;
+  result:=a/b;
+  
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found');
+  WHEN TOO_MANY_ROWS THEN
+    DBMS_OUTPUT.PUT_LINE('Too many rows');
+  WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE('Attempt to divide by zero');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Some other error occurred');
+END;
+/
+OUTPUT:
+
+SQL> @c:/plsql/pleight.sql;
+Input truncated to 1 characters
+Error: ORA-01476: divisor is equal to zero
+Error: ORA-01403: no data found
+Error: ORA-01422: exact fetch returns more than requested number of rows
+
+PL/SQL procedure successfully completed.
+
+--------------------------------------------------------------------------------
+--9.
+
+drop table inventory;
+CREATE TABLE inventory (
+  Product_ID INT,
+  Product_name VARCHAR(50),
+  Quantity INT
+);
+INSERT INTO inventory VALUES(1, 'Product A', 10);
+
+INSERT INTO inventory VALUES(2, 'Product B', 5);
+
+INSERT INTO inventory VALUES(3, 'Product C', 0);
+
+INSERT INTO inventory VALUES(4, 'Product D', -5);
+
+INSERT INTO inventory VALUES(5, 'Product E', -3);
+
+DECLARE
+  CURSOR c_inventory IS
+    SELECT Product_ID, Quantity FROM inventory WHERE Quantity < 0;
+  v_product_id inventory.Product_ID%TYPE;
+  v_quantity inventory.Quantity%TYPE;
+  negative_quantity EXCEPTION;
+  v_count NUMBER := 0;
+BEGIN
+	
+	FOR c in c_inventory LOOP
+		v_count:=v_count+1;
+	EnD LOOP;
+	if v_count>0 then
+		raise negative_quantity;
+	else
+		DBMS_OUTPUT.PUT_LINE('All product quantities are non-negative');
+	end if;
+	
+	
+EXCEPTION
+  WHEN negative_quantity THEN
+    DBMS_OUTPUT.PUT_LINE('Quantity of some products was less than 0 and has been updated to 0');
+      -- Iterate over all products with quantity less than 0
+     FOR rec IN c_inventory LOOP
+           v_product_id := rec.Product_ID;
+           v_quantity := rec.Quantity;
+    
+    -- Update quantity to 0 and raise exception
+           UPDATE inventory SET Quantity = 0 WHERE Product_ID = v_product_id;
+         
+      END LOOP;
+  
+END;
+/
+
+OUTPUT:
+
+SQL> @c:/plsql/plnine.sql;
+
+Table dropped.
+
+
+Table created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+
+1 row created.
+
+Input truncated to 1 characters
+Product quantity cannot be negative.
+
+PL/SQL procedure successfully completed.
+

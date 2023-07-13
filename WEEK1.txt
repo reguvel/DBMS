@@ -1,0 +1,128 @@
+1.
+SQL> create table course(course_ varchar(20), name varchar(20), course_id varchar(6), department varchar(4));
+Table created.
+
+SQL> create table student(name varchar(20), id varchar(20), course varchar(6), semester numeric(2,1));
+Table created.
+
+SQL> create table grade(id varchar(20), semester numeric(2,1), course varchar(6), grade_ numeric(2,1));
+Table created.
+
+
+2.
+SQL> alter table course add instructor varchar(20);
+Table altered.
+
+
+3.
+SQL> alter table student modify id varchar(10);
+Table altered.
+
+
+4.
+SQL> alter table course drop column instructor;
+Table altered.
+
+
+5.
+SQL> desc grade
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                                 VARCHAR2(20)
+ SEMESTER                                           NUMBER(2,1)
+ COURSE                                             VARCHAR2(6)
+ GRADE_                                             NUMBER(2,1)
+
+
+6.
+SQL> insert into course values('DBMS','Database','CS-222','CSE');
+1 row created.
+
+SQL> insert into course values('PPS','Probability','CS-211','CSE');
+1 row created.
+
+SQL> insert into student values('Aditya','l22cs199','PPS','2.1');
+1 row created.
+
+SQL> insert into student values('Harsha','l22cs200','DBMS','2.2');
+1 row created.
+
+SQL> insert into grade values('l22cs199',2.1,'PPS',9.2);
+1 row created.
+
+SQL> insert into grade values('l22cs200',2.2,'DBMS',8.7);
+1 row created.
+
+
+7.
+SQL> select * from course;
+COURSE_              NAME                 COURSE DEPA
+-------------------- -------------------- ------ ----
+DBMS                 Database             CS-222 CSE
+PPS                  Probability          CS-211 CSE
+
+SQL> select * from student;
+NAME                 ID         COURSE   SEMESTER
+-------------------- ---------- ------ ----------
+Aditya               l22cs199   PPS           2.1
+Harsha               l22cs200   DBMS          2.2
+
+SQL> select * from grade;
+ID                     SEMESTER COURSE     GRADE_
+-------------------- ---------- ------ ----------
+l22cs199                    2.1 PPS           9.2
+l22cs200                    2.2 DBMS          8.7
+
+
+8.
+SQL> update course set course_='CS' where name='Database';
+1 row updated.
+
+SQL> update course set name='Comp Stats' where course_='CS';
+1 row updated.
+
+SQL> update student set course='CS' where id='l22cs200';
+1 row updated.
+
+SQL> update grade set course='CS' where grade_=8.7;
+1 row updated.
+
+
+9.
+SQL> delete from course where course_='CS';
+
+1 row deleted.
+
+SQL> select * from course;
+
+COURSE_              NAME                 COURSE DEPA
+-------------------- -------------------- ------ ----
+PPS                  Probability          CS-211 CSE
+
+
+10.
+SQL> truncate table course;
+
+Table truncated.
+
+SQL> select * from course;
+
+no rows selected
+
+
+11.
+
+SQL> drop table course;
+
+Table dropped.
+
+SQL> desc course;
+ERROR:
+ORA-04043: object course does not exist
+
+
+12.
+
+SQL> commit;
+
+Commit complete.
